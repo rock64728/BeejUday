@@ -1,0 +1,35 @@
+{
+    "mustard": {
+      "name": "Mustard (Oilseed)",
+      "seed_cost_per_ha": 1200,
+      "fertilizer_cost_per_ha": 900,
+      "labour_per_ha": 3000,
+      "yield_q_per_ha": 120,
+      "price_per_q": 6000
+    },
+    "paddy": {
+      "name": "Paddy",
+      "seed_cost_per_ha": 1500,
+      "fertilizer_cost_per_ha": 2000,
+      "labour_per_ha": 4000,
+      "yield_q_per_ha": 28,
+      "price_per_q": 2200
+    },
+    "maize": {
+      "name": "Maize",
+      "seed_cost_per_ha": 1000,
+      "fertilizer_cost_per_ha": 1500,
+      "labour_per_ha": 3500,
+      "yield_q_per_ha": 20,
+      "price_per_q": 1800
+    },
+    "sugarcane": {
+      "name": "Sugarcane",
+      "seed_cost_per_ha": 2000,
+      "fertilizer_cost_per_ha": 2500,
+      "labour_per_ha": 5000,
+      "yield_q_per_ha": 600,
+      "price_per_q": 300
+    }
+  }
+  

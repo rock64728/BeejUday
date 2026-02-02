@@ -1,0 +1,9 @@
+soil_type,irrigation,land_size,temp,rainfall,humidity,input_cost,crop,suitability_label
+0,1,2,30,120,70,8000,mustard,1
+0,1,2,32,150,75,9000,mustard,1
+2,0,3,28,110,60,7500,groundnut,1
+2,0,3,33,130,65,7800,groundnut,1
+1,1,2,26,160,80,9000,paddy,1
+1,1,2,34,200,85,9500,paddy,1
+1,0,1,25,90,60,5000,maize,1
+1,0,1,36,120,55,6000,maize,1

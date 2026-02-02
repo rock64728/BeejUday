@@ -1,0 +1,13 @@
+{
+    "temp": 32,
+    "humidity": 68,
+    "rain_prob": 60,
+    "wind": 12,
+    "forecast": [
+      {"date": "Oct 25", "temp": 37, "rain_prob": 70},
+      {"date": "Oct 26", "temp": 33, "rain_prob": 10},
+      {"date": "Oct 27", "temp": 29, "rain_prob": 0}
+    ],
+    "sowing_window": { "start": "Oct 27", "end": "Oct 29" }
+  }
+  

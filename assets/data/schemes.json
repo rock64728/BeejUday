@@ -1,0 +1,21 @@
+[
+    {
+      "name": "NMEO-OS Subsidy",
+      "description": "Government subsidy to support oilseed crop adoption including mustard, groundnut, and sesame.",
+      "eligibility": "Farmers growing oilseeds on more than 0.5 hectares",
+      "benefit": "₹3200 - ₹4500 per hectare"
+    },
+    {
+      "name": "PM-KISAN",
+      "description": "Income support scheme providing ₹6000/year in 3 installments.",
+      "eligibility": "All registered farmers except government employees",
+      "benefit": "₹6000 yearly direct transfer"
+    },
+    {
+      "name": "PMFBY Crop Insurance",
+      "description": "Insurance protection against crop loss due to weather, pests, and disasters.",
+      "eligibility": "Any farmer with an active kharif or rabi crop",
+      "benefit": "Insurance coverage at subsidized premium"
+    }
+  ]
+  

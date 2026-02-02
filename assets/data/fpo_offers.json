@@ -1,0 +1,21 @@
+[
+    {
+      "fpo_name": "Saurashtra Oilseed FPO",
+      "crop": "Mustard",
+      "price_per_qtl": 5800,
+      "max_qtl": 20,
+      "min_qtl": 1,
+      "valid_till": "2025-11-30",
+      "location": "Jamnagar, Gujarat"
+    },
+    {
+      "fpo_name": "Kheda Farmers Producer Co.",
+      "crop": "Groundnut",
+      "price_per_qtl": 6300,
+      "max_qtl": 15,
+      "min_qtl": 1,
+      "valid_till": "2025-11-25",
+      "location": "Kheda, Gujarat"
+    }
+  ]
+  

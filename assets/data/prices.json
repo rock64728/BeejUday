@@ -1,0 +1,8 @@
+{
+    "region": "Gujarat",
+    "date": "2025-10-25",
+    "commodity": "Mustard",
+    "prices": [5800, 5850, 5900, 5920, 5950, 5980, 6000],
+    "dates": ["Oct 19", "Oct 20", "Oct 21", "Oct 22", "Oct 23", "Oct 24", "Oct 25"]
+  }
+  
