@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart'; // We reuse the auth service
+import '../services/auth_service.dart'; 
 import '../services/economics_service.dart';
-import 'buyer_dashboard_screen.dart'; // Placeholder for now
+import 'buyer_dashboard_screen.dart'; 
 import 'buyer_login_screen.dart';
 
 class BuyerSignupScreen extends StatefulWidget {
@@ -30,17 +30,21 @@ class _BuyerSignupScreenState extends State<BuyerSignupScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => loading = true);
 
-    // 1. Register User (Reuse existing Auth Logic)
+    // 1. Register User using the UPDATED Auth Service
     final auth = AuthService();
-    final success = await auth.register(emailController.text, passwordController.text);
+    
+    // 🔴 CHANGE: Passing 'nameController.text' first so it gets saved!
+    final success = await auth.register(
+      nameController.text, 
+      emailController.text, 
+      passwordController.text
+    );
 
     if (success) {
-      // 2. Save Buyer Specific Data (You can create a BuyerService later)
-      // For now, we simulate success
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const BuyerDashboardScreen()), // We will build this next
+          MaterialPageRoute(builder: (_) => const BuyerDashboardScreen()), 
         );
       }
     } else {

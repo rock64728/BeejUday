@@ -25,17 +25,24 @@ class _SignupScreenState extends State<SignupScreen> {
   bool loading = false;
 
   Future<void> _signup() async {
+    if (nameController.text.isEmpty || emailController.text.isEmpty) {
+       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
+       return;
+    }
+
     setState(() => loading = true);
 
     final auth = AuthService();
+    
+    // 🔴 UPDATED: Passing 'nameController.text' first
     final success = await auth.register(
+      nameController.text,
       emailController.text,
       passwordController.text,
     );
 
     if (!success) {
       if (mounted) {
-        // 🔴 CHANGE 1: Translate SnackBar Message
         final lang = Provider.of<LanguageProvider>(context, listen: false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(lang.translate('user_exists'))),
@@ -45,6 +52,8 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
+    // Note: ProfileService saving is partially redundant now because AuthService does it,
+    // but we keep it to ensure 'landSize' is set defaults.
     await ProfileService(economics: EconomicsService()).saveProfile({
       "name": nameController.text,
       "email": emailController.text,

@@ -1,11 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import this
+import 'dart:convert';
 import 'buyer_preference_screen.dart';
 import 'buyer_requests_screen.dart';
-import 'buyer_accepted_screen.dart'; // We will create this small file too
+import 'buyer_accepted_screen.dart';
 import 'buyer_notification_screen.dart';
 
-class BuyerDashboardScreen extends StatelessWidget {
+class BuyerDashboardScreen extends StatefulWidget { // Changed to StatefulWidget
   const BuyerDashboardScreen({super.key});
+
+  @override
+  State<BuyerDashboardScreen> createState() => _BuyerDashboardScreenState();
+}
+
+class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
+  String buyerName = "Welcome, Buyer"; // Default
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBuyerName();
+  }
+
+  // 🔴 NEW FUNCTION: Fetch Name
+  Future<void> _fetchBuyerName() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Assuming you saved buyer profile similar to farmer profile
+    // Or simpler: get the user from the 'users' list using the logged_in_email
+    final email = prefs.getString("logged_in_user");
+    final userData = prefs.getString("users");
+    
+    if (email != null && userData != null) {
+      List users = json.decode(userData);
+      var user = users.firstWhere((u) => u["email"] == email, orElse: () => null);
+      if (user != null && user['name'] != null) {
+        setState(() {
+          buyerName = "Welcome, ${user['name']}";
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +55,12 @@ class BuyerDashboardScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    "Buyers name", 
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  // 🔴 UPDATED: Dynamic Name Text
+                  Text(
+                    buyerName, 
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  GestureDetector( // Make icon clickable
+                  GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
@@ -35,17 +70,11 @@ class BuyerDashboardScreen extends StatelessWidget {
                     child: Stack(
                       children: [
                         const Icon(Icons.notifications, size: 30),
-                        // Red Dot for unread status
                         Positioned(
-                         right: 0,
-                          top: 0,
+                          right: 0, top: 0,
                           child: Container(
-                           width: 10,
-                            height: 10,
-                            decoration: const BoxDecoration(
-                              color: Colors.orange,
-                              shape: BoxShape.circle,
-                            ),
+                            width: 10, height: 10,
+                            decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
                           ),
                         )
                       ],
@@ -55,7 +84,7 @@ class BuyerDashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 50),
 
-              // BUTTONS
+              // BUTTONS (Rest remains exactly the same)
               _buildDashboardButton(
                 context, 
                 "Choose your preference", 
@@ -88,19 +117,16 @@ class BuyerDashboardScreen extends StatelessWidget {
       height: 60,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFFFCC4D), // The specific yellow-orange from your image
+          backgroundColor: const Color(0xFFFFCC4D),
           foregroundColor: Colors.black,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
-            side: const BorderSide(color: Colors.black, width: 1.5), // Thick black border
+            side: const BorderSide(color: Colors.black, width: 1.5),
           ),
         ),
         onPressed: onTap,
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+        child: Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
     );
   }

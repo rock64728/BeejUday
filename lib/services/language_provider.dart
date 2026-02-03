@@ -31,7 +31,11 @@ class LanguageProvider extends ChangeNotifier {
   static final Map<String, Map<String, String>> _localizedStrings = {
     // ================= ENGLISH (en) =================
     'en': {
-
+      //Role
+      'who_are_you' : 'Who Are You',
+      'select_role' : 'Select Your Role',
+      'i_am_farmer' : 'I Am Farmer',
+      'i_am_buyer' : 'I am Buyer',
       'profile': 'Profile',
       'save_changes': 'Save Changes',
       'saved_success': 'Profile Updated Successfully!',
@@ -204,6 +208,11 @@ class LanguageProvider extends ChangeNotifier {
 
     // ================= HINDI (hi) =================
     'hi': {
+      //role
+      'who_are_you': 'तुम कौन हो',
+      'i_am_farmer': ' मैं किसान हूँ।',
+      'select_role':'भूमिका चुनें' ,
+      'i_am_buyer' : 'मैं खरीदार हूँ।',
       'profile': 'प्रोफ़ाइल',
       'save_changes': 'बदलाव सहेजें',
       'saved_success': 'प्रोफ़ाइल अपडेट हो गया!',
@@ -376,6 +385,11 @@ class LanguageProvider extends ChangeNotifier {
 
     // ================= GUJARATI (gu) =================
     'gu': {
+      //Role
+      'who_are_you' : 'તમે કોણ છો?',
+      'select_role' : 'ભૂમિકા પસંદ કરો',
+      'i_am_farmer': 'હું ખેડૂત છું',
+      'i_am_buyer': 'હું ખરીદદાર છું.',
       'profile': 'પ્રોફાઇલ',
       'save_changes': 'ફેરફારો સાચવો',
       'saved_success': 'પ્રોફાઇલ અપડેટ થઈ ગયું!',

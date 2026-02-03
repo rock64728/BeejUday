@@ -1,10 +1,13 @@
+import 'dart:convert'; // 🔴 ADDED for JSON
 import 'package:beeju_day/screens/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // 🔴 ADDED for fetching user data
 import '../services/auth_service.dart';
 import '../services/language_provider.dart';
 import '../screens/signup_screen.dart';
 import '../services/economics_service.dart';
+import '../services/profile_service.dart'; // 🔴 ADDED
 
 class LoginScreen extends StatefulWidget {
   final EconomicsService economics;
@@ -16,7 +19,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // --- LOGIC PRESERVED ---
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
   bool loading = false;
@@ -27,12 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = AuthService();
     final success = await auth.login(emailCtrl.text, passCtrl.text);
 
-    setState(() => loading = false);
-
     if (!success) {
+      setState(() => loading = false);
       if (mounted) {
-        // 🔴 CHANGE 1: Translate SnackBar Message (Note: Requires access to context/provider)
-        // Since we are inside a method, we fetch provider with listen: false
         final lang = Provider.of<LanguageProvider>(context, listen: false);
         ScaffoldMessenger.of(context).showSnackBar(
            SnackBar(content: Text(lang.translate('invalid_login'))),
@@ -40,6 +39,35 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       return;
     }
+
+    // 🔴 FIX: Retrieve User Name and Sync to Profile
+    // This ensures that when you log in, "Jenil" appears instead of "Farmer"
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userData = prefs.getString("users");
+      
+      if (userData != null) {
+        List users = json.decode(userData);
+        // Find the user who just logged in
+        var user = users.firstWhere(
+          (u) => u["email"] == emailCtrl.text, 
+          orElse: () => null
+        );
+
+        if (user != null) {
+          // Sync this user's name to the current active profile
+          await ProfileService(economics: widget.economics).saveProfile({
+            "name": user['name'] ?? "Farmer",
+            "email": user['email'],
+            "landSize": "1.5" // Default fallback if missing
+          });
+        }
+      }
+    } catch (e) {
+      print("Error syncing profile: $e");
+    }
+
+    setState(() => loading = false);
 
     if (mounted) {
       Navigator.pushReplacement(
@@ -50,11 +78,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
-  // -----------------------
 
   @override
   Widget build(BuildContext context) {
-    // 🔴 CHANGE 2: Initialize Provider
     final lang = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
@@ -71,7 +97,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Back Button
                         IconButton(
                           padding: EdgeInsets.zero,
                           alignment: Alignment.centerLeft,
@@ -80,45 +105,33 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
 
-                        // 🔴 CHANGE 3: Translate Title
                         Text(
                           lang.translate('login'),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                         const SizedBox(height: 10),
-                        // 🔴 CHANGE 4: Translate Subtitle
                         Text(
                           lang.translate('welcome_back'),
                           style: const TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                         const SizedBox(height: 40),
 
-                        // Email Field
                         _buildTextField(
                           controller: emailCtrl,
-                          // 🔴 CHANGE 5: Translate Hint
                           hintText: lang.translate('enter_email'),
                           icon: Icons.email_outlined,
                         ),
                         const SizedBox(height: 20),
 
-                        // Password Field
                         _buildTextField(
                           controller: passCtrl,
-                          // 🔴 CHANGE 6: Translate Hint
                           hintText: lang.translate('enter_password'),
                           isPassword: true,
                           icon: Icons.lock_outline,
                         ),
 
-                        // Spacer pushes content to bottom
                         const Spacer(),
 
-                        // LOGIN BUTTON
                         SizedBox(
                           width: double.infinity,
                           height: 56,
@@ -126,32 +139,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFFCC4D), 
                               elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                             ),
                             onPressed: login,
                             child: loading
                                 ? const CircularProgressIndicator(color: Colors.black)
                                 : Text(
-                                    // 🔴 CHANGE 7: Translate Button Text
                                     lang.translate('login').toUpperCase(),
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                           ),
                         ),
 
                         const SizedBox(height: 20),
 
-                        // Footer: Don't have an account? Create one
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // 🔴 CHANGE 8: Translate "Don't have an account?"
                             Text(
                               "${lang.translate('no_account')} ",
                               style: const TextStyle(color: Colors.grey, fontSize: 14),
@@ -165,14 +169,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 );
                               },
-                              // 🔴 CHANGE 9: Translate "Create one"
                               child: Text(
                                 lang.translate('create_one'),
-                                style: const TextStyle(
-                                  color: Colors.orange,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
+                                style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 14),
                               ),
                             ),
                           ],
@@ -190,7 +189,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Helper method for the rounded orange text fields
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
