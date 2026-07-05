@@ -1,16 +1,27 @@
-# beeju_day
+🌱 BeejUdayBridging the Gap Between Farmers and Buyers for Sustainable Oilseed Farming📖 About the ProjectBeejUday is an AI-powered agritech platform designed to revolutionize sustainable oilseed cultivation by forging direct, pre-harvest connections between rural farmers and institutional buyers.By delivering actionable intelligence—including AI-driven crop recommendations, yield forecasting, dynamic price predictions, and hyper-local weather insights—BeejUday empowers farmers to make climate-smart decisions. Simultaneously, it provides buyers with unprecedented early visibility into upcoming oilseed production. The result is a democratized agricultural ecosystem that eliminates predatory middlemen, boosts farmer profitability, and actively supports India's strategic vision of reducing edible oil imports.🚩 The Problem StatementDespite India being one of the world's largest oilseed producers, nearly 60% of the nation's edible oil demand relies on imports. This systemic inefficiency is driven by several key factors:Resource-Heavy Traditions: Farmers default to traditional, water-intensive crops like sugarcane and paddy, severely depleting groundwater reserves.Information Asymmetry: Buyers only gain visibility into crop availability post-harvest, leading to inefficient supply chain logistics.Risk Aversion: Farmers lack the data-backed confidence required to transition to high-yield oilseed crops.Margin Erosion: A deeply entrenched network of middlemen continuously reduces the farmer's final profit margins.Blind Planning: The total absence of early market visibility results in poor strategic planning across the entire agricultural value chain.💡 Our SolutionBeejUday introduces a comprehensive digital ecosystem that fundamentally shifts the agricultural workflow from reactive to predictive:Pre-Harvest Visibility: Farmers register their crop intentions during the sowing phase, allowing buyers to discover and plan for upcoming oilseed production months in advance.AI-Powered Insights: Embedded machine learning models provide highly accurate yield predictions and market price forecasts.Climate-Smart Advisory: Hyper-local weather forecasting and soil health data guide optimal farming practices.Empowerment & Linkage: Farmers access critical government subsidy information and negotiate directly with buyers, completely bypassing traditional intermediaries.✨ Core Features🌱 AI-Based Crop Recommendation: Data-driven suggestions for optimal planting.📈 Crop Yield Prediction: ML-powered volume forecasting.💰 Dynamic Price Prediction: Market trend analysis to ensure fair compensation.☁️ Weather Forecast Integration: Real-time, localized climate data.🌍 Soil Health & Rainfall History: Deep agronomic data for better decision-making.📍 Government Scheme Awareness: Instant access to relevant agricultural subsidies.🤝 Direct B2B Marketplace: Seamless communication and negotiation between farmers and buyers.🌐 Multi-Language Support: Vernacular accessibility for rural users.🔐 Secure OTP Authentication: Frictionless and secure onboarding.👥 Target Audience🚜 Primary User: FarmersAccess to personalized crop recommendations and yield predictions.Real-time weather insights and soil analysis.Awareness of active government schemes.Direct access to high-paying institutional buyers.🏢 Secondary User: FPO Officials & BuyersEarly visibility into upcoming crop yields for strategic procurement planning.Streamlined supply chain management and logistics support.Verified farmer profiles to ensure trust and traceability.🛠 Technical ArchitectureCategoryTechnologyPurposeFrontendFlutter (Dart)Cross-platform Mobile Application (Android/iOS)AI/ML EngineTensorFlow / Scikit-LearnMachine Learning Models & Data PreprocessingEdge AITensorFlow LiteOn-device AI Inference🤖 Machine Learning ModelsCrop Classifier: Dense Neural Network utilizing Softmax Activation.Price Predictor: Advanced Regression Model utilizing ReLU Activation.Yield Predictor: Regression Network optimized via Mean Squared Error (MSE).⚙️ System WorkflowOnboarding: Secure User Registration & OTP Verification.Profile Setup: Comprehensive Farmer Profile Creation.Data Intake: Hyper-local Weather & Soil Analysis.AI Processing: System generates Crop Recommendation, Yield Prediction, and Price Prediction.Market Linkage: Buyer Discovery activated.Transaction: Direct Farmer-Buyer Communication and procurement handshake.📂 Project StructurePlaintextBeejUday
+│
+├── android/
+├── ios/
+├── lib/
+│   ├── screens/
+│   ├── models/
+│   ├── widgets/
+│   ├── services/
+│   ├── utils/
+│   └── main.dart
+│
+├── assets/
+├── pubspec.yaml
+└── README.md
+🚀 Getting StartedPrerequisitesFlutter SDK & Dart SDKAndroid Studio / VS CodeGitInstallation StepsBash# 1. Clone the repository
+git clone https://github.com/TvishaKohli/BeejUday.git
 
-A new Flutter project.
+# 2. Navigate into the directory
+cd BeejUday
 
-## Getting Started
+# 3. Install dependencies
+flutter pub get
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# 4. Run the application
+flutter run
+🌍 Vision & ImpactBeejUday is actively building a future that promotes:Sustainable Agriculture • Crop Diversification • Water Conservation • Increased Farmer Income • Zero Middlemen Dependency • Efficient Procurement • Reduced Edible Oil Imports🔮 Future Enhancements (Roadmap)🛰️ Satellite-Based Crop Monitoring: Integrating spatial data for macro-level farm analysis.🔬 AI Disease Detection: Computer vision for early-stage pest and disease identification.📊 Live Mandi Prices: Real-time API integration for national market rates.🎙️ Vernacular Voice Assistant: Zero-literacy access allowing farmers to navigate the app using regional speech.🛡️ Crop Insurance Integration: Automated micro-insurance based on predictive yield data.💧 Smart Irrigation Recommendations: IoT and weather-driven watering schedules.👨‍💻 The TeamTvisha Kohli & Jenil PrajapatiFaculty of Engineering & Technology, GLS University
