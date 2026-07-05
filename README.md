@@ -143,7 +143,7 @@ BeejUday
 
 ### Clone Repository
 ```bash
-git clone [https://github.com/TvishaKohli/BeejUday.git](https://github.com/TvishaKohli/BeejUday.git)
+git clone https://github.com/rock64728/BeejUday.git
 ```
 
 ### Navigate
