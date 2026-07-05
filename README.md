@@ -1,4 +1,122 @@
-🌱 BeejUdayBridging the Gap Between Farmers and Buyers for Sustainable Oilseed Farming📖 About the ProjectBeejUday is an AI-powered agritech platform designed to revolutionize sustainable oilseed cultivation by forging direct, pre-harvest connections between rural farmers and institutional buyers.By delivering actionable intelligence—including AI-driven crop recommendations, yield forecasting, dynamic price predictions, and hyper-local weather insights—BeejUday empowers farmers to make climate-smart decisions. Simultaneously, it provides buyers with unprecedented early visibility into upcoming oilseed production. The result is a democratized agricultural ecosystem that eliminates predatory middlemen, boosts farmer profitability, and actively supports India's strategic vision of reducing edible oil imports.🚩 The Problem StatementDespite India being one of the world's largest oilseed producers, nearly 60% of the nation's edible oil demand relies on imports. This systemic inefficiency is driven by several key factors:Resource-Heavy Traditions: Farmers default to traditional, water-intensive crops like sugarcane and paddy, severely depleting groundwater reserves.Information Asymmetry: Buyers only gain visibility into crop availability post-harvest, leading to inefficient supply chain logistics.Risk Aversion: Farmers lack the data-backed confidence required to transition to high-yield oilseed crops.Margin Erosion: A deeply entrenched network of middlemen continuously reduces the farmer's final profit margins.Blind Planning: The total absence of early market visibility results in poor strategic planning across the entire agricultural value chain.💡 Our SolutionBeejUday introduces a comprehensive digital ecosystem that fundamentally shifts the agricultural workflow from reactive to predictive:Pre-Harvest Visibility: Farmers register their crop intentions during the sowing phase, allowing buyers to discover and plan for upcoming oilseed production months in advance.AI-Powered Insights: Embedded machine learning models provide highly accurate yield predictions and market price forecasts.Climate-Smart Advisory: Hyper-local weather forecasting and soil health data guide optimal farming practices.Empowerment & Linkage: Farmers access critical government subsidy information and negotiate directly with buyers, completely bypassing traditional intermediaries.✨ Core Features🌱 AI-Based Crop Recommendation: Data-driven suggestions for optimal planting.📈 Crop Yield Prediction: ML-powered volume forecasting.💰 Dynamic Price Prediction: Market trend analysis to ensure fair compensation.☁️ Weather Forecast Integration: Real-time, localized climate data.🌍 Soil Health & Rainfall History: Deep agronomic data for better decision-making.📍 Government Scheme Awareness: Instant access to relevant agricultural subsidies.🤝 Direct B2B Marketplace: Seamless communication and negotiation between farmers and buyers.🌐 Multi-Language Support: Vernacular accessibility for rural users.🔐 Secure OTP Authentication: Frictionless and secure onboarding.👥 Target Audience🚜 Primary User: FarmersAccess to personalized crop recommendations and yield predictions.Real-time weather insights and soil analysis.Awareness of active government schemes.Direct access to high-paying institutional buyers.🏢 Secondary User: FPO Officials & BuyersEarly visibility into upcoming crop yields for strategic procurement planning.Streamlined supply chain management and logistics support.Verified farmer profiles to ensure trust and traceability.🛠 Technical ArchitectureCategoryTechnologyPurposeFrontendFlutter (Dart)Cross-platform Mobile Application (Android/iOS)AI/ML EngineTensorFlow / Scikit-LearnMachine Learning Models & Data PreprocessingEdge AITensorFlow LiteOn-device AI Inference🤖 Machine Learning ModelsCrop Classifier: Dense Neural Network utilizing Softmax Activation.Price Predictor: Advanced Regression Model utilizing ReLU Activation.Yield Predictor: Regression Network optimized via Mean Squared Error (MSE).⚙️ System WorkflowOnboarding: Secure User Registration & OTP Verification.Profile Setup: Comprehensive Farmer Profile Creation.Data Intake: Hyper-local Weather & Soil Analysis.AI Processing: System generates Crop Recommendation, Yield Prediction, and Price Prediction.Market Linkage: Buyer Discovery activated.Transaction: Direct Farmer-Buyer Communication and procurement handshake.📂 Project StructurePlaintextBeejUday
+# 🌱 BeejUday
+
+> **Bridging the Gap Between Farmers and Buyers for Sustainable Oilseed Farming**
+
+---
+
+## 📖 About the Project
+
+BeejUday is an AI-powered Agritech platform developed to encourage sustainable oilseed cultivation by connecting farmers directly with buyers before harvest.
+
+The platform empowers farmers with crop recommendations, yield prediction, price forecasting, weather insights, and government scheme awareness while giving buyers early visibility into upcoming oilseed production.
+
+This reduces dependence on middlemen, promotes climate-smart farming, improves farmer income, and supports India's vision of reducing edible oil imports.
+
+## 🚩 Problem Statement
+
+India is one of the world's largest producers of oilseeds, yet nearly 60% of edible oil demand is fulfilled through imports.
+
+Several factors contribute to this issue:
+* Farmers prefer traditional crops like sugarcane and paddy.
+* These crops consume excessive groundwater.
+* Buyers receive information only after harvesting.
+* Farmers lack confidence in choosing oilseed crops.
+* Middlemen reduce farmers' profit margins.
+* The absence of early market visibility results in poor crop planning and inefficient agricultural supply chains.
+
+## 💡 Our Solution
+
+BeejUday creates a digital ecosystem where:
+* Farmers register their crops during sowing.
+* Buyers can discover upcoming oilseed production before harvest.
+* AI models predict crop yield and market prices.
+* Weather and soil information help improve farming decisions.
+* Government subsidy information becomes easily accessible.
+* Farmers connect directly with buyers without intermediaries.
+
+## ✨ Features
+
+* 🌱 AI-based Crop Recommendation
+* 📈 Crop Yield Prediction
+* 💰 Price Prediction
+* ☁️ Weather Forecast Integration
+* 🌍 Soil Health Information
+* 🌾 Rainfall History
+* 📍 Government Scheme Awareness
+* 🤝 Direct Buyer-Farmer Connection
+* 🌐 Multi-language Support
+* 🔐 OTP Authentication
+* 👤 Farmer Profile Management
+* 📊 Crop Planning Dashboard
+
+## 👥 End Users
+
+### 🚜 Farmers
+* Crop recommendations
+* Weather insights
+* Yield prediction
+* Government schemes
+* Better selling opportunities
+
+### 🏢 FPO Officials & Buyers
+* Procurement planning
+* Early crop visibility
+* Supply chain management
+* Farmer verification
+
+## 🛠 Tech Stack
+
+| Technology | Purpose |
+| :--- | :--- |
+| **Flutter** | Cross-platform Mobile Application |
+| **Dart** | Programming Language |
+| **TensorFlow** | Machine Learning Models |
+| **TensorFlow Lite** | On-device AI Inference |
+| **Scikit-Learn** | Data Preprocessing & Feature Engineering |
+
+## 🤖 Machine Learning Models
+
+**Crop Classifier**
+* Dense Neural Network
+* Softmax Activation
+
+**Price Predictor**
+* Regression Model
+* ReLU Activation
+
+**Yield Predictor**
+* Regression Network
+* Mean Squared Error (MSE) Optimization
+
+## ⚙️ Workflow
+
+1. User Registration
+2. OTP Verification
+3. Profile Creation
+4. Weather & Soil Analysis
+5. Crop Recommendation
+6. Yield Prediction
+7. Price Prediction
+8. Buyer Discovery
+9. Direct Farmer-Buyer Communication
+
+## 📱 Application Modules
+
+* Authentication
+* Home Dashboard
+* Crop Recommendation
+* Weather Forecast
+* Soil Analysis
+* Yield Prediction
+* Price Prediction
+* Buyer Marketplace
+* Government Schemes
+* Farmer Profile
+
+## 📂 Project Structure
+
+```text
+BeejUday
 │
 ├── android/
 ├── ios/
@@ -13,15 +131,77 @@
 ├── assets/
 ├── pubspec.yaml
 └── README.md
-🚀 Getting StartedPrerequisitesFlutter SDK & Dart SDKAndroid Studio / VS CodeGitInstallation StepsBash# 1. Clone the repository
-git clone https://github.com/TvishaKohli/BeejUday.git
+```
 
-# 2. Navigate into the directory
+## 🚀 Getting Started
+
+### Prerequisites
+* Flutter SDK
+* Dart SDK
+* Android Studio / VS Code
+* Git
+
+### Clone Repository
+```bash
+git clone [https://github.com/TvishaKohli/BeejUday.git](https://github.com/TvishaKohli/BeejUday.git)
+```
+
+### Navigate
+```bash
 cd BeejUday
+```
 
-# 3. Install dependencies
+### Install Dependencies
+```bash
 flutter pub get
+```
 
-# 4. Run the application
+### Run Application
+```bash
 flutter run
-🌍 Vision & ImpactBeejUday is actively building a future that promotes:Sustainable Agriculture • Crop Diversification • Water Conservation • Increased Farmer Income • Zero Middlemen Dependency • Efficient Procurement • Reduced Edible Oil Imports🔮 Future Enhancements (Roadmap)🛰️ Satellite-Based Crop Monitoring: Integrating spatial data for macro-level farm analysis.🔬 AI Disease Detection: Computer vision for early-stage pest and disease identification.📊 Live Mandi Prices: Real-time API integration for national market rates.🎙️ Vernacular Voice Assistant: Zero-literacy access allowing farmers to navigate the app using regional speech.🛡️ Crop Insurance Integration: Automated micro-insurance based on predictive yield data.💧 Smart Irrigation Recommendations: IoT and weather-driven watering schedules.👨‍💻 The TeamTvisha Kohli & Jenil PrajapatiFaculty of Engineering & Technology, GLS University
+```
+
+## 🌍 Impact
+
+BeejUday promotes:
+* Sustainable Agriculture
+* Crop Diversification
+* Water Conservation
+* Better Farmer Income
+* Reduced Middlemen Dependency
+* Efficient Buyer Procurement
+* Reduced Edible Oil Imports
+
+## 🔮 Future Enhancements
+
+* Satellite-based crop monitoring
+* AI disease detection
+* Live mandi prices
+* Voice assistant for farmers
+* Regional language support
+* Crop insurance integration
+* Government API integration
+* Smart irrigation recommendations
+
+
+## 👨‍💻 Team
+
+* **Tvisha Kohli**
+* **Jenil Prajapati**
+
+*Faculty of Engineering & Technology, GLS University*
+
+## 🙌 Acknowledgements
+
+Special thanks to our faculty mentors and everyone who provided guidance throughout the development of this project.
+
+## 📄 License
+
+This project was developed for academic and educational purposes.
+
+---
+**🌱 Empowering Farmers Through Technology**
+
+*"Small changes in visibility can lead to big changes in sustainability."*
+
+⭐ If you found this project interesting, don't forget to star the repository.
