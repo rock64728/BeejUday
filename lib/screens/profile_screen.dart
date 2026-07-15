@@ -1,9 +1,12 @@
+import 'package:beeju_day/main.dart';
+import 'package:beeju_day/screens/language_screen.dart';
 import 'package:beeju_day/services/language_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/profile_service.dart';
 import '../services/economics_service.dart';
-import 'login_screen.dart';
+// import 'login_screen.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileScreen extends StatefulWidget {
   // 🔴 FIX: Added 'economics' parameter to solve Error 4
@@ -154,9 +157,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Logout Button
                   Center(
                     child: TextButton(
-                      onPressed: () {
-                        // Pass economics to login screen to keep chain alive
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginScreen(economics: widget.economics)));
+                      onPressed: () async {
+                        await supabase.auth.signOut();
+
+                        if (context.mounted) {
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(
+      // Replace 'LanguageScreen' with whatever your first login/splash screen is named
+      builder: (context) => LanguageScreen(economics: widget.economics), 
+    ),
+    (Route<dynamic> route) => false, // 🔴 This 'false' tells Flutter to destroy the entire history stack!
+  );
+}
                       },
                       child: const Text("Log Out", style: TextStyle(color: Colors.red)),
                     ),

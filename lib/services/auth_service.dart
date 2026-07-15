@@ -1,67 +1,84 @@
-import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
+  // Access the global Supabase client
+  final supabase = Supabase.instance.client;
 
-  // 🔴 UPDATED: Added 'name' parameter
-  Future<bool> register(String name, String email, String password) async {
-    final prefs = await SharedPreferences.getInstance();
+  // 🔴 UPDATED: Cloud Registration with Role
+  Future<bool> register(String name, String email, String password, {String role = 'farmer'}) async {
+    try {
+      // 1. Create secure Auth User in Supabase
+      final AuthResponse res = await supabase.auth.signUp(
+        email: email,
+        password: password,
+      );
 
-    final userData = prefs.getString("users");
-    List users = userData != null ? json.decode(userData) : [];
+      final User? user = res.user;
+      if (user == null) return false;
 
-    bool exists = users.any((u) => u["email"] == email);
-    if (exists) return false;
+      // 2. Assign their Role in the database
+      await supabase.from('user_roles').insert({
+        'id': user.id,
+        'role': role,
+      });
 
-    // 🔴 UPDATED: Saving 'name' to the user object
-    users.add({
-      "name": name, 
-      "email": email, 
-      "password": password,
-      "role": "farmer" // Default role
-    });
-    
-    await prefs.setString("users", json.encode(users));
-    await prefs.setString("logged_in_user", email);
-    
-    // 🔴 UPDATED: Also save specifically to 'farmer_profile' for the Dashboard to find easily
-    // This bridges the gap between Auth and Profile Service
-    await prefs.setString('farmer_profile', json.encode({
-      "name": name,
-      "email": email,
-      "landSize": "1.5"
-    }));
+      // 3. Create their Cloud Profile based on their role
+      if (role == 'farmer') {
+        await supabase.from('farmer_profiles').insert({
+          'id': user.id,
+          'full_name': name,
+          'land_size_acres': 1.5 // Setting a default
+        });
+      } else if (role == 'buyer') {
+        await supabase.from('buyer_profiles').insert({
+          'id': user.id,
+          'company_name': name,
+        });
+      }
 
-    return true;
-  }
-
-  // ... (Login logic remains same) ...
-  Future<bool> login(String email, String password) async {
-    final prefs = await SharedPreferences.getInstance();
-    final userData = prefs.getString("users");
-    if (userData == null) return false;
-
-    List users = json.decode(userData);
-    var user = users.firstWhere(
-      (u) => u["email"] == email && u["password"] == password,
-      orElse: () => null,
-    );
-
-    if (user != null) {
+      // Keep this for legacy compatibility in your app for now
+      final prefs = await SharedPreferences.getInstance();
       await prefs.setString("logged_in_user", email);
-      // Optional: Update profile with logged-in user's name if missing
+
       return true;
+    } catch (e) {
+      print("Cloud Registration Error: $e");
+      return false;
     }
-    return false;
   }
 
-  // ... (Rest of the file remains same) ...
-  Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString("logged_in_user") != null;
+  // 🔴 UPDATED: Cloud Login
+  Future<bool> login(String email, String password) async {
+    try {
+      final AuthResponse res = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      
+      if (res.user != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("logged_in_user", email);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print("Cloud Login Error: $e");
+      return false;
+    }
   }
-  
+
+  // 🔴 UPDATED: Supabase automatically securely manages the session!
+  Future<bool> isLoggedIn() async {
+    return supabase.auth.currentSession != null;
+  }
+
+  Future<String?> getLoggedInUser() async {
+    return supabase.auth.currentUser?.email;
+  }
+
   Future<void> logout() async {
+    await supabase.auth.signOut(); // Securely ends the cloud session
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove("logged_in_user");
   }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "957678705948",
+    "project_id": "beejuday-notifications",
+    "storage_bucket": "beejuday-notifications.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:957678705948:android:fb8cdfce2fb10f3d1d6ed9",
+        "android_client_info": {
+          "package_name": "com.example.beeju_day"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK_6mqPlQpkv8G3YxuSq3E0mBUATrUe90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

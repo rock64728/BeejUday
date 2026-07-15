@@ -1,3 +1,4 @@
+import 'package:beeju_day/services/fpo_service.dart';
 import 'package:beeju_day/services/language_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -146,14 +147,24 @@ class _FPOOfferDetailScreenState extends State<FPOOfferDetailScreen> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      // 🔴 CHANGE 7: Translate Toast Message
-                      content: Text(lang.translate('interest_sent_msg')),
-                      backgroundColor: Colors.green,
-                    ),
+                onPressed: () async {
+                  // 🔴 FIX: Actually send the interest from the Detail Screen too!
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sending...")));
+                  
+                  await FPOService().sendInterest(
+                    o["id"], 
+                    "Farmer", 
+                    double.tryParse(_quantityController.text) ?? 10
                   );
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(lang.translate('interest_sent_msg')),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
                 },
                 child: Text(
                   lang.translate('send_interest').toUpperCase(),

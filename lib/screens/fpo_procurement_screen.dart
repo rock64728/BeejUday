@@ -1,34 +1,12 @@
 import 'package:beeju_day/services/language_provider.dart';
+import 'package:beeju_day/services/market_provider.dart'; // 🔴 ADDED
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/fpo_service.dart';
 import 'fpo_offer_detail_screen.dart';
 
-class FPOProcurementScreen extends StatefulWidget {
+class FPOProcurementScreen extends StatelessWidget { // 🔴 CHANGED TO StatelessWidget
   const FPOProcurementScreen({super.key});
-
-  @override
-  State<FPOProcurementScreen> createState() => _FPOProcurementScreenState();
-}
-
-class _FPOProcurementScreenState extends State<FPOProcurementScreen> {
-  bool loading = true;
-  List<Map<String, dynamic>> offers = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    offers = await FPOService().loadOffers();
-    if (mounted) {
-      setState(() {
-        loading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,21 +30,40 @@ class _FPOProcurementScreenState extends State<FPOProcurementScreen> {
           ),
         ),
       ),
-      body: loading
-          ? const Center(child: CircularProgressIndicator(color: Colors.orange))
-          : ListView.separated(
+      // 🔴 REWRITTEN: Listen directly to the MarketProvider
+      body: Consumer<MarketProvider>(
+        builder: (context, marketProvider, child) {
+          
+          if (marketProvider.isLoading && marketProvider.offers.isEmpty) {
+            return const Center(child: CircularProgressIndicator(color: Colors.orange));
+          }
+          
+          if (marketProvider.offers.isEmpty) {
+            return Center(child: Text(lang.translate('no_offers_available') ?? "No active market offers found."));
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              // Allows the user to pull down to manually refresh the cloud data
+              await context.read<MarketProvider>().fetchOffers();
+            },
+            child: ListView.separated(
               padding: const EdgeInsets.all(16),
-              itemCount: offers.length,
+              itemCount: marketProvider.offers.length,
               separatorBuilder: (ctx, i) => const SizedBox(height: 16),
               itemBuilder: (_, i) {
-                final o = offers[i];
-                return _buildOfferCard(o, lang);
+                final o = marketProvider.offers[i];
+                return _buildOfferCard(context, o, lang);
               },
             ),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildOfferCard(Map<String, dynamic> o, LanguageProvider lang) {
+  // Passing context so Navigator works correctly
+  Widget _buildOfferCard(BuildContext context, Map<String, dynamic> o, LanguageProvider lang) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -92,10 +89,8 @@ class _FPOProcurementScreenState extends State<FPOProcurementScreen> {
         ),
         child: Column(
           children: [
-            // Top Row: Icon + Details + Price
             Row(
               children: [
-                // Icon Section
                 Container(
                   height: 50,
                   width: 50,
@@ -106,8 +101,6 @@ class _FPOProcurementScreenState extends State<FPOProcurementScreen> {
                   child: const Icon(Icons.storefront, color: Colors.orange),
                 ),
                 const SizedBox(width: 16),
-                
-                // Text Details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,8 +130,6 @@ class _FPOProcurementScreenState extends State<FPOProcurementScreen> {
                     ],
                   ),
                 ),
-
-                // Price Badge
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
@@ -164,10 +155,7 @@ class _FPOProcurementScreenState extends State<FPOProcurementScreen> {
                 ),
               ],
             ),
-            
             const SizedBox(height: 16),
-            
-            // 🔴 NEW: Sell Now Button (Triggers API logic you requested)
             SizedBox(
               width: double.infinity,
               height: 45,
@@ -178,19 +166,16 @@ class _FPOProcurementScreenState extends State<FPOProcurementScreen> {
                   elevation: 0,
                 ),
                 onPressed: () async {
-                  // 1. Show Loading feedback
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Sending interest..."), duration: Duration(seconds: 1)),
                   );
 
-                  // 2. Call Service (Your Logic Here)
                   await FPOService().sendInterest(
                     o["id"], 
-                    "Rahul Farmer", // Replace with dynamic name if stored in Profile
+                    "Dynamic Farmer", // The Service overrides this with the REAL name anyway
                     double.tryParse(o["min_qtl"].toString()) ?? 10
                   );
 
-                  // 3. Show Success Message
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -201,7 +186,7 @@ class _FPOProcurementScreenState extends State<FPOProcurementScreen> {
                   }
                 },
                 child: Text(
-                  lang.translate('sell_now'), // e.g., "Sell Now" / "बेचें"
+                  lang.translate('sell_now'), 
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),

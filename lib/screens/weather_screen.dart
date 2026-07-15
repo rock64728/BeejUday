@@ -21,7 +21,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
     fetchWeather();
   }
 
-  // --- LOGIC PRESERVED ---
   Future<void> fetchWeather() async {
     try {
       final position = await LocationService.getPosition();
@@ -37,11 +36,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
       // Optional: Handle error state in UI
     }
   }
-  // -----------------------
 
   @override
   Widget build(BuildContext context) {
-    // 🔴 CHANGE 1: Initialize Provider
     final lang = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
@@ -53,11 +50,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.orange),
           onPressed: () => Navigator.pop(context),
         ),
-        // 🔴 CHANGE 2: Translate Title
         title: Text(
           lang.translate('current_weather'),
           style: const TextStyle(
-            color: Color(0xFF6A1B9A), 
+            color: Color(0xFF6A1B9A),
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
@@ -72,20 +68,19 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 children: [
                   // 1. Current Weather Card
                   _buildCurrentWeatherCard(lang),
-                  
+
                   const SizedBox(height: 24),
 
                   // 2. Forecast Header
-                  // 🔴 CHANGE 3: Translate Header
                   Text(
-                    lang.translate('forecast_header'), // e.g., "3 Days forecast"
+                    lang.translate('forecast_header'),
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
 
                   // 3. Forecast Table Header
                   _buildForecastHeader(lang),
-                  
+
                   // 4. Forecast List
                   ListView.builder(
                     shrinkWrap: true,
@@ -99,7 +94,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   const SizedBox(height: 24),
 
                   // 5. AI Suggestion Box
-                  // 🔴 CHANGE 4: Translate Header
                   Text(
                     lang.translate('ai_suggestion'),
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -124,40 +118,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
                         )
                       ],
                     ),
-                    // 🔴 CHANGE 5: Translate Suggestion Text
                     child: Text(
-                      lang.translate('ai_weather_tip'), // "Based on forecast, delay sowing..."
+                      lang.translate('ai_weather_tip'),
                       style: const TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                   ),
 
-                  const SizedBox(height: 30),
-
-                  // 6. See Full Forecast Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFCC4D), 
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 0,
-                      ),
-                      onPressed: () {
-                        // Action for full forecast
-                      },
-                      // 🔴 CHANGE 6: Translate Button
-                      child: Text(
-                        lang.translate('see_full_forecast').toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Added a small padding at the bottom for better scrolling experience
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -170,7 +138,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     final temp = weather!['current_weather']['temperature'];
     final wind = weather!['current_weather']['windspeed'];
     final humidity = weather!['hourly']['relative_humidity_2m'][0];
-    final rainProb = weather!['daily']['precipitation_probability_max'][0]; 
+    final rainProb = weather!['daily']['precipitation_probability_max'][0];
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -187,7 +155,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
       ),
       child: Column(
         children: [
-          // 🔴 CHANGE 7: Translate Row Labels
           _buildWeatherRow("${lang.translate('temperature')}:", "$temp°C"),
           const SizedBox(height: 12),
           _buildWeatherRow("${lang.translate('humidity')}:", "$humidity%"),
@@ -215,7 +182,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          // 🔴 CHANGE 8: Translate Headers
           Expanded(flex: 2, child: Text(lang.translate('day'), style: const TextStyle(fontWeight: FontWeight.bold))),
           const VerticalDivider(width: 1, color: Colors.orange),
           Expanded(flex: 2, child: Text(lang.translate('temp'), style: const TextStyle(fontWeight: FontWeight.bold))),
@@ -231,9 +197,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget _buildForecastRow(int i, LanguageProvider lang) {
     final maxTemp = weather!['daily']['temperature_2m_max'][i];
     final rainChance = weather!['daily']['precipitation_probability_max'][i];
-    
-    // 🔴 CHANGE 9: Translate Advisory Logic
-    // Instead of raw string, we set a translation key
+
+    // Logic for Advisory Translation Keys
     String advisoryKey = "good_condition";
     if (rainChance > 50) {
       advisoryKey = "delay_irrigation";
@@ -250,18 +215,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
         children: [
           // Day Column
           Expanded(
-            flex: 2, 
-            // 🔴 CHANGE 10: Translate "Today" / "Day X"
-            child: Text(i == 0 ? lang.translate('today') : "${lang.translate('day')} ${i+1}", style: const TextStyle(fontSize: 13)),
+            flex: 2,
+            child: Text(i == 0 ? lang.translate('today') : "${lang.translate('day')} ${i + 1}", style: const TextStyle(fontSize: 13)),
           ),
-          
+
           // Divider
           Container(height: 30, width: 1, color: Colors.orange.withOpacity(0.5)),
           const SizedBox(width: 8),
 
           // Temp Column
           Expanded(
-            flex: 2, 
+            flex: 2,
             child: Text("$maxTemp°C", style: const TextStyle(fontSize: 13)),
           ),
 
@@ -271,7 +235,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
           // Rain Column
           Expanded(
-            flex: 2, 
+            flex: 2,
             child: Text("$rainChance%", style: const TextStyle(fontSize: 13)),
           ),
 
@@ -281,10 +245,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
           // Advisory Column
           Expanded(
-            flex: 4, 
-            // 🔴 CHANGE 11: Translate Advisory Key
+            flex: 4,
             child: Text(
-              lang.translate(advisoryKey), 
+              lang.translate(advisoryKey),
               style: const TextStyle(fontSize: 12, color: Colors.grey),
               maxLines: 2,
             ),

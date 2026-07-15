@@ -22,6 +22,7 @@ class _BuyerSignupScreenState extends State<BuyerSignupScreen> {
   final stateController = TextEditingController();
   final uniqueIdController = TextEditingController(); // GST or License No.
   final passwordController = TextEditingController();
+  final auth = AuthService();
 
   String? buyerType;
   bool loading = false;
@@ -37,7 +38,8 @@ class _BuyerSignupScreenState extends State<BuyerSignupScreen> {
     final success = await auth.register(
       nameController.text, 
       emailController.text, 
-      passwordController.text
+      passwordController.text,
+      role: 'buyer' // <--- THIS IS THE MAGIC LINE WE MISSED
     );
 
     if (success) {

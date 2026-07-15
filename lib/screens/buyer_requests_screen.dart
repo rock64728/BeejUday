@@ -17,16 +17,21 @@ class _BuyerRequestsScreenState extends State<BuyerRequestsScreen> {
     _loadRequests();
   }
 
-  void _loadRequests() {
-    setState(() {
-      requests = FPOService().getRequestsForBuyer();
-    });
+  Future<void> _loadRequests() async {
+    final cloudRequests = await FPOService().getRequestsForBuyer();
+    if (mounted) {
+      setState(() {
+        requests = cloudRequests;
+      });
+    }
   }
 
-  void _accept(String id) {
-    FPOService().acceptRequest(id);
-    _loadRequests(); // Refresh UI
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Request Accepted!")));
+  Future<void> _accept(String id) async {
+    await FPOService().acceptRequest(id);
+    await _loadRequests(); // Refresh UI directly from cloud
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Request Accepted!")));
+    }
   }
 
   @override

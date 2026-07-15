@@ -10,13 +10,23 @@ class BuyerAcceptedScreen extends StatefulWidget {
 
 class _BuyerAcceptedScreenState extends State<BuyerAcceptedScreen> {
   List<Map<String, dynamic>> deals = [];
+  bool isLoading = true; // 🔴 ADDED: Loading state
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      deals = FPOService().getAcceptedDeals();
-    });
+    _loadDeals(); // 🔴 FIX: Call the async function
+  }
+
+  // 🔴 FIX: Made this an async function to wait for the cloud
+  Future<void> _loadDeals() async {
+    final acceptedDeals = await FPOService().getAcceptedDeals();
+    if (mounted) {
+      setState(() {
+        deals = acceptedDeals;
+        isLoading = false; // Turn off loading spinner
+      });
+    }
   }
 
   @override
@@ -24,7 +34,9 @@ class _BuyerAcceptedScreenState extends State<BuyerAcceptedScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(title: const Text("Accepted Requests"), backgroundColor: Colors.white, elevation: 0, foregroundColor: Colors.black),
-      body: deals.isEmpty 
+      body: isLoading 
+        ? const Center(child: CircularProgressIndicator(color: Colors.green)) // Show spinner while loading
+        : deals.isEmpty 
         ? const Center(child: Text("No accepted deals yet."))
         : ListView.builder(
             padding: const EdgeInsets.all(20),

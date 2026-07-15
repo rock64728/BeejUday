@@ -1,13 +1,16 @@
-import 'package:beeju_day/services/economics_service.dart';
-import 'package:beeju_day/services/language_provider.dart';
+import 'dart:convert';
+import 'dart:math'; // Required for exp() logic
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
+
 import '../services/profile_service.dart';
 import '../services/weather_service.dart';
-import 'dart:math';
+import 'package:beeju_day/services/economics_service.dart';
+import 'package:beeju_day/services/language_provider.dart';
 
 class MarketPriceScreen extends StatefulWidget {
   const MarketPriceScreen({super.key});
@@ -18,7 +21,6 @@ class MarketPriceScreen extends StatefulWidget {
 
 class _MarketPriceScreenState extends State<MarketPriceScreen> {
   bool loading = true;
-  // 🔴 CHANGE 1: Use key for loading message
   String statusMessage = "loading_market_data";
 
   // 1. CROP SELECTION
@@ -28,7 +30,7 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
     "Groundnut", "Sugarcane", "Bajra", "Soybean", "Jeera"
   ];
 
-  // 2. REALISTIC DATA FACTORS
+  // 2. REALISTIC DATA FACTORS (Fallback)
   final Map<String, Map<String, double>> cropFactors = {
     "Mustard":   {"basePrice": 6050, "baseYield": 18},
     "Wheat":     {"basePrice": 2400, "baseYield": 35},
@@ -42,10 +44,24 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
     "Jeera":     {"basePrice": 29000,"baseYield": 5},
   };
 
+  // 🟢 NEW: Scientific NPK Standards (For Yield Input)
+  // Used if we don't have real soil test data
+  final Map<String, Map<String, double>> cropStandards = {
+    'Wheat':     {'N': 60, 'P': 30, 'K': 30},
+    'Rice':      {'N': 80, 'P': 40, 'K': 40},
+    'Maize':     {'N': 70, 'P': 35, 'K': 30},
+    'Cotton':    {'N': 90, 'P': 45, 'K': 45},
+    'Sugarcane': {'N': 120,'P': 50, 'K': 50},
+    'Mustard':   {'N': 50, 'P': 25, 'K': 20},
+    'Soybean':   {'N': 40, 'P': 60, 'K': 40},
+    'Groundnut': {'N': 20, 'P': 50, 'K': 40},
+    'Bajra':     {'N': 40, 'P': 20, 'K': 20},
+    'Jeera':     {'N': 30, 'P': 20, 'K': 15},
+  };
+
   // Data variables
   List<double> prices = [];
   String region = "Gujarat"; 
-  // 🔴 CHANGE 2: Store status as a code ('rising', 'falling', 'stable')
   String trendStatus = "stable"; 
   
   // AI Results
@@ -59,8 +75,17 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
   double realRainfall = 100.0;
   Map<String, dynamic>? profile;
 
-  late Interpreter priceInterpreter;
-  late Interpreter yieldInterpreter;
+  // 🟢 AI VARIABLES (Price Model)
+  late Interpreter marketModelInterpreter;
+  Map<String, dynamic>? encoders;
+  Map<String, dynamic>? scaler;
+  
+  // 🟢 AI VARIABLES (Yield Model)
+  late Interpreter yieldModelInterpreter;
+  Map<String, dynamic>? yieldEncoders;
+  Map<String, dynamic>? yieldScaler;
+
+  bool isModelLoaded = false;
 
   @override
   void initState() {
@@ -75,83 +100,39 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
     _updateCropData(); 
   }
 
-  void _updateCropData() {
-    setState(() => loading = true);
-    _generateGraphData();
-    _runPrediction();
-    
-    // Update Trend
-    double current = prices.last;
-    double prev = prices[prices.length - 2];
-    
-    // 🔴 CHANGE 3: Set trend status code instead of English text
-    if (current > prev) trendStatus = "rising";
-    else if (current < prev) trendStatus = "falling";
-    else trendStatus = "stable";
-
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) setState(() => loading = false);
-    });
-  }
-
-  void _generateGraphData() {
-    double base = cropFactors[selectedCrop]!["basePrice"]!;
-    Random random = Random();
-    
-    prices = [];
-    for (int i = 0; i < 7; i++) {
-      double variation = (random.nextDouble() * 0.08) - 0.04; // +/- 4%
-      prices.add(base + (base * variation));
-    }
-  }
-
-  Future<void> _runPrediction() async {
-    try {
-      String soilType = profile?["soil"] ?? "Loamy";
-      String irrigation = profile?["irrigation"] ?? "Rainfed";
-      double landSize = double.tryParse(profile?["landSize"] ?? "1.0") ?? 1.0;
-
-      double n = 80, p = 40, k = 40;
-      if (soilType == "Sandy") { n = 20; p = 10; k = 10; }
-      else if (soilType == "Clayey") { n = 40; p = 20; k = 20; }
-      else if (soilType == "Black") { n = 50; p = 25; k = 25; }
-
-      double finalRain = realRainfall + (irrigation == "Irrigated" ? 100 : 0);
-
-      var priceIn = [[finalRain, realTemp, realHumidity]];
-      var priceOut = List.filled(1, 0.0).reshape([1, 1]);
-      priceInterpreter.run(priceIn, priceOut);
-      double rawPriceFactor = priceOut[0][0]; 
-
-      var yieldIn = [[n, p, k, realTemp, finalRain, realHumidity]];
-      var yieldOut = List.filled(1, 0.0).reshape([1, 1]);
-      yieldInterpreter.run(yieldIn, yieldOut);
-      double rawYieldFactor = yieldOut[0][0];
-
-      double basePrice = cropFactors[selectedCrop]!["basePrice"]!;
-      double baseYield = cropFactors[selectedCrop]!["baseYield"]!;
-
-      predictedPrice = basePrice * (1 + (rawPriceFactor % 0.15)); 
-      double yieldPerHa = baseYield * (1 + (rawYieldFactor % 0.15));
-      predictedYield = yieldPerHa / 2.47;
-      
-      
-
-      double cost = 30000.0 * landSize;
-      predictedProfit = (predictedPrice! * predictedYield! * landSize) - cost;
-
-    } catch (e) {
-      print("Prediction Error: $e");
-    }
-  }
-
+  // 🟢 UPDATED: Load BOTH Models
   Future<void> _loadModels() async {
-    priceInterpreter = await Interpreter.fromAsset('assets/model/price_model.tflite');
-    yieldInterpreter = await Interpreter.fromAsset('assets/model/yield_model.tflite');
+    try {
+      // 1. PRICE MODEL FILES
+      marketModelInterpreter = await Interpreter.fromAsset('assets/model/final_market_model_v2.tflite');
+      String encoderString = await rootBundle.loadString('assets/model/encoders.json');
+      encoders = json.decode(encoderString);
+      String scalerString = await rootBundle.loadString('assets/model/scaler.json');
+      scaler = json.decode(scalerString);
+
+      // 2. YIELD MODEL FILES
+      yieldModelInterpreter = await Interpreter.fromAsset('assets/model/final_yield_model.tflite');
+      String yieldEncoderString = await rootBundle.loadString('assets/model/yield_encoders.json');
+      yieldEncoders = json.decode(yieldEncoderString);
+      String yieldScalerString = await rootBundle.loadString('assets/model/yield_scaler.json');
+      yieldScaler = json.decode(yieldScalerString);
+
+      setState(() {
+        isModelLoaded = true;
+      });
+      print("✅ AI Models Loaded Successfully");
+    } catch (e) {
+      print("❌ Error loading AI models: $e");
+    }
   }
 
   Future<void> _loadProfile() async {
     profile = await ProfileService(economics: EconomicsService()).loadProfile();
+    if (profile != null && profile!.containsKey('state')) {
+      setState(() {
+        region = profile!['state'];
+      });
+    }
   }
 
   Future<void> _fetchRealWeather() async {
@@ -167,9 +148,174 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
     }
   }
 
+  void _updateCropData() {
+    setState(() => loading = true);
+    _generateGraphData(); 
+    _runPrediction();     
+    
+    // Update Trend
+    if (prices.isNotEmpty && prices.length > 1) {
+      double current = prices.last;
+      double prev = prices[prices.length - 2];
+      
+      if (current > prev) trendStatus = "rising";
+      else if (current < prev) trendStatus = "falling";
+      else trendStatus = "stable";
+    }
+
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) setState(() => loading = false);
+    });
+  }
+
+  void _generateGraphData() {
+    double base = cropFactors[selectedCrop]?["basePrice"] ?? 2000.0;
+    Random random = Random();
+    
+    prices = [];
+    for (int i = 0; i < 7; i++) {
+      double variation = (random.nextDouble() * 0.08) - 0.04; // +/- 4%
+      prices.add(base + (base * variation));
+    }
+  }
+
+  // 🟢 CORE PREDICTION LOGIC
+  Future<void> _runPrediction() async {
+    if (!isModelLoaded || encoders == null || scaler == null || yieldEncoders == null || yieldScaler == null) {
+      print("⚠️ AI Models not ready.");
+      return;
+    }
+
+    try {
+      // COMMON INPUTS
+      String state = profile?["state"] ?? "Gujarat";
+      String district = profile?["district"] ?? "Ahmedabad";
+      String market = "Bavla"; 
+      String commodity = selectedCrop;
+      
+      // ===========================
+      // 1. PRICE PREDICTION
+      // ===========================
+      DateTime now = DateTime.now();
+      double valState = _encode(encoders!, 'State', state);
+      double valDistrict = _encode(encoders!, 'District Name', district);
+      double valMarket = _encode(encoders!, 'Market Name', market);
+      double valCommodity = _encode(encoders!, 'Commodity', commodity);
+      double valVariety = _encode(encoders!, 'Variety', 'Other');
+      double valGrade = _encode(encoders!, 'Grade', 'FAQ');
+      double valMonth = now.month.toDouble();
+      double valYear = now.year.toDouble(); 
+
+      List<double> rawPriceInput = [
+        valState, valDistrict, valMarket, valCommodity, 
+        valVariety, valGrade, valMonth, valYear
+      ];
+
+      // Scale Price Inputs
+      List<dynamic> priceMean = scaler!['mean'];
+      List<dynamic> priceScale = scaler!['scale'];
+      List<double> scaledPriceInput = [];
+      for (int i = 0; i < rawPriceInput.length; i++) {
+        scaledPriceInput.add((rawPriceInput[i] - priceMean[i]) / priceScale[i]);
+      }
+
+      var priceInputTensor = [scaledPriceInput]; 
+      var priceOutputTensor = List.filled(1, [0.0]).reshape([1, 1]);
+
+      marketModelInterpreter.run(priceInputTensor, priceOutputTensor);
+      double aiPrice = priceOutputTensor[0][0];
+
+      // ===========================
+      // 2. YIELD PREDICTION (NEW)
+      // ===========================
+      // Encode Inputs (Note: 'District ' has a space in Yield logic)
+      double valStateYield = _encode(yieldEncoders!, 'State', state);
+      double valDistrictYield = _encode(yieldEncoders!, 'District ', district); 
+      double valCropYield = _encode(yieldEncoders!, 'Crop_Label', commodity);
+
+      // Get NPK (Use defaults if we don't have sensors yet)
+      Map<String, double> standards = cropStandards[selectedCrop] ?? {'N':50, 'P':25, 'K':20};
+      double inputN = standards['N']!;
+      double inputP = standards['P']!;
+      double inputK = standards['K']!;
+      double inputTemp = realTemp;
+      double inputRain = 120.0; // Or realRainfall
+      double inputPH = 6.5; 
+
+      List<double> rawYieldInput = [
+        valStateYield, valDistrictYield, valCropYield,
+        inputN, inputP, inputK, inputTemp, inputRain, inputPH
+      ];
+
+      // Scale Yield Inputs
+      List<dynamic> yieldMean = yieldScaler!['mean'];
+      List<dynamic> yieldScale = yieldScaler!['scale'];
+      List<double> scaledYieldInput = [];
+      for (int i = 0; i < rawYieldInput.length; i++) {
+        scaledYieldInput.add((rawYieldInput[i] - yieldMean[i]) / yieldScale[i]);
+      }
+
+      var yieldInputTensor = [scaledYieldInput];
+      var yieldOutputTensor = List.filled(1, [0.0]).reshape([1, 1]);
+
+      yieldModelInterpreter.run(yieldInputTensor, yieldOutputTensor);
+
+      // REVERSE LOG (Math: exp(output) - 1)
+      double logYield = yieldOutputTensor[0][0];
+      double realYieldTonnes = exp(logYield) - 1;
+      if (realYieldTonnes < 0) realYieldTonnes = 0;
+
+      // CONVERT TO QUINTALS (1 Tonne = 10 Quintals)
+      // We do this because your UI says 'qtl_ha' and Price is per Quintal
+      double realYieldQuintals = realYieldTonnes * 10;
+
+      setState(() {
+        predictedPrice = aiPrice;
+        predictedYield = realYieldQuintals; 
+        
+        // ===========================
+        // 3. PROFIT CALCULATION (UNCHANGED LOGIC)
+        // ===========================
+        double landSize = double.tryParse(profile?["landSize"] ?? "1.0") ?? 1.0;
+        double costOfCultivation = 25000 * landSize;
+        
+        // This formula remains exactly as you had it
+        predictedProfit = (predictedPrice! * predictedYield! * landSize) - costOfCultivation;
+      });
+
+      print("🔮 Predicted: $commodity | Price: ₹$predictedPrice | Yield: $predictedYield qtl/ha");
+
+    } catch (e) {
+      print("❌ Prediction Logic Error: $e");
+    }
+  }
+
+  // Generic helper for encoding (Works for both Price and Yield maps)
+  double _encode(Map<String, dynamic> encoderMap, String category, String value) {
+    // Handle "District " vs "District" key differences automatically
+    if (!encoderMap.containsKey(category)) {
+      if (encoderMap.containsKey("$category ")) category = "$category "; // Try adding space
+      else if (encoderMap.containsKey(category.trim())) category = category.trim(); // Try trimming
+      else return 0.0;
+    }
+
+    var categoryMap = encoderMap[category];
+    if (categoryMap == null) return 0.0;
+
+    // Try exact match
+    if (categoryMap.containsKey(value)) return categoryMap[value].toDouble();
+    
+    // Try Title Case (e.g. "ahmedabad" -> "Ahmedabad")
+    if (value.isNotEmpty) {
+      String titleCase = value[0].toUpperCase() + value.substring(1).toLowerCase();
+      if (categoryMap.containsKey(titleCase)) return categoryMap[titleCase].toDouble();
+    }
+    
+    return 0.0; 
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 🔴 CHANGE 4: Initialize Provider
     final lang = Provider.of<LanguageProvider>(context);
 
     // Dynamic Y-Axis
@@ -180,7 +326,6 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
       maxY = prices.reduce(max) * 1.05; 
     }
 
-    // 🔴 CHANGE 5: Determine Trend UI based on status code
     bool isRising = trendStatus == 'rising';
     Color trendColor = isRising ? Colors.green : (trendStatus == 'falling' ? Colors.red : Colors.grey);
     String emoji = isRising ? "📈" : (trendStatus == 'falling' ? "📉" : "⚖️");
@@ -188,7 +333,6 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        // 🔴 CHANGE 6: Translate Title
         title: Text(lang.translate('market_insights')), 
         backgroundColor: Colors.transparent, 
         elevation: 0, 
@@ -210,7 +354,7 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: selectedCrop, // Keeps internal English value
+                  value: selectedCrop,
                   isExpanded: true,
                   icon: const Icon(Icons.keyboard_arrow_down, color: Colors.green),
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
@@ -220,7 +364,6 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
                       child: Row(children: [
                         Icon(Icons.agriculture, size: 20, color: Colors.green.shade700),
                         const SizedBox(width: 10),
-                        // 🔴 CHANGE 7: Translate Crop Name in UI
                         Text(lang.translate(crop)),
                       ]),
                     );
@@ -243,12 +386,11 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  // 🔴 CHANGE 8: Translate "Live Price"
                   Text("${lang.translate('live_price')} ($region)", style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 4),
                   loading 
                   ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.green))
-                  : Text("₹${prices.last.toStringAsFixed(0)}", style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900)),
+                  : Text("₹${prices.isNotEmpty ? prices.last.toStringAsFixed(0) : '0'}", style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900)),
                 ]),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -257,7 +399,6 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
                     borderRadius: BorderRadius.circular(30),
                     border: Border.all(color: trendColor.withOpacity(0.3))
                   ),
-                  // 🔴 CHANGE 9: Translate Trend Text (Rising/Falling)
                   child: Text(
                     "${lang.translate(trendStatus)} $emoji", 
                     style: TextStyle(
@@ -275,8 +416,7 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
 
             const SizedBox(height: 32),
 
-            // 4. PERFECT GRAPH
-            // 🔴 CHANGE 10: Translate "Price History"
+            // 4. GRAPH
             Text(lang.translate('price_history'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 16),
             
@@ -310,11 +450,8 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
                           reservedSize: 30,
                           getTitlesWidget: (value, meta) {
                             if (value % 1 == 0 && value >= 0 && value < 7) {
-                              // 🔴 CHANGE 11: Translate Days of Week
-                              // We use keys like 'mon', 'tue', etc.
                               List<String> days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
                               String dayKey = days[value.toInt()];
-                              
                               return Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
                                 child: Text(
@@ -368,7 +505,6 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
       child: Column(
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            // 🔴 CHANGE 12: Translate Header
             Text(lang.translate('ai_forecast'), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1.0, fontSize: 11)),
             const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
           ]),
@@ -376,7 +512,6 @@ class _MarketPriceScreenState extends State<MarketPriceScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 🔴 CHANGE 13: Translate Labels
               _infoColumn(lang.translate('est_price'), "₹${predictedPrice!.toStringAsFixed(0)}"),
               Container(width: 1, height: 40, color: Colors.white24),
               _infoColumn(lang.translate('est_yield'), "${predictedYield!.toStringAsFixed(1)} ${lang.translate('qtl_ha')}"),

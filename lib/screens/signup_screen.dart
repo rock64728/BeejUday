@@ -34,39 +34,45 @@ class _SignupScreenState extends State<SignupScreen> {
 
     final auth = AuthService();
     
-    // 🔴 UPDATED: Passing 'nameController.text' first
-    final success = await auth.register(
-      nameController.text,
-      emailController.text,
-      passwordController.text,
-    );
+    try {
+      final success = await auth.register(
+        nameController.text,
+        emailController.text,
+        passwordController.text,
+      );
 
-    if (!success) {
+      if (!success) {
+        if (mounted) {
+          final lang = Provider.of<LanguageProvider>(context, listen: false);
+          // Changed to a generic failure message so we don't assume the user exists
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Registration failed. Check your password length or try a different email.")),
+          );
+        }
+        setState(() => loading = false);
+        return;
+      }
+
+      // Proceed to save remaining local data
+      await ProfileService(economics: EconomicsService()).saveProfile({
+        "name": nameController.text,
+        "email": emailController.text,
+        "landSize": 1.5,
+      });
+
       if (mounted) {
-        final lang = Provider.of<LanguageProvider>(context, listen: false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(lang.translate('user_exists'))),
+        setState(() => loading = false);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => FarmerRegistration(economics: widget.economics),
+          ),
         );
       }
+    } catch (e) {
       setState(() => loading = false);
-      return;
-    }
-
-    // Note: ProfileService saving is partially redundant now because AuthService does it,
-    // but we keep it to ensure 'landSize' is set defaults.
-    await ProfileService(economics: EconomicsService()).saveProfile({
-      "name": nameController.text,
-      "email": emailController.text,
-      "landSize": 1.5,
-    });
-
-    if (mounted) {
-      setState(() => loading = false);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => FarmerRegistration(economics: widget.economics),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
       );
     }
   }
